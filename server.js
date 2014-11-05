@@ -32,7 +32,7 @@ function check( url ) {
 
       if ($('.play-button.devices').text().indexOf('cart') > -1) {
           growl('Nexus 6 is Available!');
-          console.log('Nexus 6 is Available!'.green);
+          console.log('Nexus 6 is Available!'.rainbow);
           open(url);
       } else {
 

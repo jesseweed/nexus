@@ -32,10 +32,11 @@ function check( url ) {
 
       if ($('.play-button.devices').text().indexOf('cart') > -1) {
           growl('Nexus 6 is Available!');
+          console.log('Nexus 6 is Available!'.green);
           open(url);
       } else {
 
-        console.log('Out of stock');
+        console.log('Nexus 6 is Out of stock :('.red);
         setTimeout(check(url), 2000);
 
       }

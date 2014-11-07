@@ -2,7 +2,8 @@ var tesla,
     express = require('express'), // GET EXPRESS
     app = module.exports = express(), // DEFINE THE APP
     request = require('superagent'),
-    open = require('open'),
+    fs = require('fs'),
+    browser = require('open'),
     growl = require('growl'),
     cheerio = require('cheerio'),
     server = require('http').createServer(app); // CREATE THE SERVER
@@ -21,7 +22,30 @@ require('./config/environment/' + process.env.NODE_ENV)(app); // ENVIRONMENT SPE
 
 growl('Checking Nexus 6 stock...');
 
-function check( url ) {
+function checkGoogle( name, url ) {
+  request.get(url, function(error, res){
+
+      // console.log(res.text);
+      var html = res.text,
+      $ = cheerio.load(html);
+
+      if ($('.play-button.devices').text().indexOf('cart') > -1) {
+          growl(name.rainbow + ' is available @ Google!');
+          console.log(name.rainbow + ' is available @ Google!'.rainbow);
+          fs.appendFile('availability.log', name + ' was available from Google Play on ' + new Date().toString() + '\n');
+          browser(url);
+      } else {
+
+        console.log(name.red + ' is sold out @ Google : '.red + new Date().toString().red);
+        checkGoogle(name, url);
+
+      }
+
+  });
+}
+
+
+function checkMotorola( url ) {
   request.get(url, function(error, res){
 
       // console.log(res.text);
@@ -30,22 +54,26 @@ function check( url ) {
 
       var items = $('.play-button.devices');
 
-      if ($('.play-button.devices').text().indexOf('cart') > -1) {
-          growl('Nexus 6 is Available!');
-          console.log('Nexus 6 is Available!'.rainbow);
-          open(url);
+      if ($('.button.blue-1.medium.disabled').text().indexOf('Out of Stock') > -1) {
+        console.log('Nexus 6 is sold out @ Motorola : '.yellow + new Date().toString().yellow);
+        checkMotorola(url);
       } else {
-
-        console.log('Nexus 6 is Out of stock :('.red);
-        setTimeout(check(url), 2000);
-
+        growl('Nexus 6 is available @ Motorola!');
+        console.log('Nexus 6 is available @ Motorola!'.rainbow);
+        fs.appendFile('availability.log', 'Nexus 6 was available from Motorola.com on ' + new Date().toString() + '\n');
+        browser(url);
       }
 
   });
 }
 
 
-check('https://play.google.com/store/devices/details/Nexus_6_64GB_Cloud_White?id=nexus_6_white_64gb');
+// CHECK ALL THE THINGZ
+checkGoogle('32GB White Nexus 6', 'https://play.google.com/store/devices/details/Nexus_6_32GB_Cloud_White?id=nexus_6_white_32gb');
+checkGoogle('64GB White Nexus 6', 'https://play.google.com/store/devices/details/Nexus_6_64GB_Cloud_White?id=nexus_6_white_64gb');
+checkGoogle('32GB Blue Nexus 6', 'https://play.google.com/store/devices/details/Nexus_6_32GB_Midnight_Blue?id=nexus_6_blue_32gb');
+checkGoogle('64GB Blue Nexus 6', 'https://play.google.com/store/devices/details/Nexus_6_64GB_Midnight_Blue?id=nexus_6_blue_64gb');
+checkMotorola('http://www.motorola.com/us/consumers/nexus-6-header/Nexus-6/nexus-6-motorola-us.html');
 
 
 // START THE APP BY LISTEN ON <PORT>

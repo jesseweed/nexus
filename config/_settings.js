@@ -55,7 +55,7 @@ module.exports = function (app) {
       html: true, // jade, handlebars, etc still need to run through middleware for now
     },
 
-    port : 1856, // port to run the server on
+    port : 1999, // port to run the server on
 
     prettify : {
       html : true, // whether to pretify html
